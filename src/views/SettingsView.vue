@@ -33,22 +33,6 @@
               </div>
             </div>
 
-            <!-- Type: Text/Password Input (e.g. GitHub Config) -->
-            <div v-else-if="item.type === 'text-input' || item.type === 'password-input'" class="setting-item">
-              <div class="label">
-                <span>{{ t(item.label_key) }}</span>
-              </div>
-              <div class="value-container">
-                <input 
-                  :type="item.type === 'password-input' ? 'password' : 'text'" 
-                  v-model="storeAny[item.id]" 
-                  @change="systemStore.saveGithubConfig()"
-                  class="setting-input"
-                  :placeholder="item.placeholder"
-                />
-              </div>
-            </div>
-
             <!-- Type: Text (Read-only) -->
             <div v-else-if="item.type === 'text'" class="setting-item">
               <div class="label">
@@ -283,20 +267,6 @@ h1 {
   cursor: pointer;
   appearance: none; 
   padding-right: 0;
-}
-
-.setting-input {
-  background: transparent;
-  border: none;
-  color: inherit;
-  font-size: 1rem;
-  outline: none;
-  text-align: right;
-  width: 150px; /* Adjust width as needed */
-}
-
-.setting-input::placeholder {
-  color: rgba(255,255,255,0.3);
 }
 
 .setting-select option {

@@ -196,86 +196,9 @@ const savePost = async () => {
       }
 
     } else {
-      // GitHub Mode (if credentials present) or Fallback
-      const { githubOwner, githubRepo, githubBranch, githubToken } = systemStore;
-      
-      if (githubOwner && githubRepo && githubToken) {
-        // 1. Save Post Markdown
-        const path = `public/posts/${form.value.id}.md`;
-        const apiUrl = `https://api.github.com/repos/${githubOwner}/${githubRepo}/contents/${path}`;
-        
-        // Get SHA if exists
-        let sha = '';
-        try {
-          const getRes = await fetch(apiUrl, {
-            headers: { 
-              'Authorization': `token ${githubToken}`,
-              'Accept': 'application/vnd.github.v3+json'
-            }
-          });
-          if (getRes.ok) {
-            const data = await getRes.json();
-            sha = data.sha;
-          }
-        } catch (e) {
-          // File likely doesn't exist yet
-        }
-
-        // Create/Update File
-        // Base64 encode content (handling utf-8)
-        const contentEncoded = btoa(unescape(encodeURIComponent(frontmatter)));
-        
-        const putRes = await fetch(apiUrl, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `token ${githubToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            message: `Update post: ${form.value.title}`,
-            content: contentEncoded,
-            branch: githubBranch || 'main',
-            sha: sha || undefined
-          })
-        });
-
-        if (!putRes.ok) {
-          const err = await putRes.json();
-          throw new Error(`GitHub API Error: ${err.message}`);
-        }
-
-        alert('Saved to GitHub! Action should trigger shortly.');
-        if (isNewPost.value) {
-          router.replace(`/post/editor/${form.value.id}`);
-        }
-
-      } else {
-        // Browser Mode: File System Access API or Download
-        // @ts-ignore - File System Access API
-        if (window.showSaveFilePicker) {
-          // @ts-ignore
-          const handle = await window.showSaveFilePicker({
-            suggestedName: isNewPost.value ? `${form.value.id}.md` : `${postId.value}.md`,
-            types: [{
-              description: 'Markdown File',
-              accept: { 'text/markdown': ['.md'] },
-            }],
-          });
-          const writable = await handle.createWritable();
-          await writable.write(frontmatter);
-          await writable.close();
-          alert('Saved locally!');
-        } else {
-          // Fallback
-          const blob = new Blob([frontmatter], { type: 'text/markdown' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = isNewPost.value ? `${form.value.id}.md` : `${postId.value}.md`;
-          a.click();
-          URL.revokeObjectURL(url);
-        }
-      }
+      // Production Mode: Redirect to Headless CMS
+      alert('In production, please use the CMS Dashboard to edit content.');
+      window.location.href = '/admin/';
     }
   } catch (e) {
     console.error("Save cancelled or failed", e);
