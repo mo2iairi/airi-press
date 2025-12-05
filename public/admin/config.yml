@@ -1,9 +1,10 @@
 backend:
   name: github
-  # REPLACE THIS WITH YOUR REPO (e.g. username/repo)
   repo: mo2iairi/airi-press
-  branch: main # Branch to update (optional; defaults to master)
-
+  branch: master
+  site_url: https://mo2iairi.github.io/airi-press
+  base_url: https://mo2iairi.github.io/airi-press
+  
 media_folder: "public/img/uploads"
 public_folder: "/img/uploads"
 
