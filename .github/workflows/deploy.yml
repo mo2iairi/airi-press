@@ -21,6 +21,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -28,12 +33,7 @@ jobs:
           cache: 'pnpm'
           
       - name: Install dependencies
-        uses: pnpm/action-setup@v2
-        with:
-          version: 9
-          run_install: |
-            - recursive: true
-              args: [--frozen-lockfile, --strict-peer-dependencies]
+        run: pnpm install --frozen-lockfile --strict-peer-dependencies
       
       - name: Generate Post Index
         run: pnpm gen:posts
