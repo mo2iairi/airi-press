@@ -61,7 +61,7 @@
         class="post-card"
         @click="openPost(post.id)"
       >
-        <img v-if="post.imageUrl" :src="post.imageUrl" alt="Post thumbnail" class="post-image" />
+        <img v-if="post.imageUrl" :src="getImageUrl(post.imageUrl)" alt="Post thumbnail" class="post-image" />
         
         <div class="post-content">
           <div class="post-meta-top">
@@ -116,7 +116,7 @@ const endDate = ref('');
 
 onMounted(async () => {
   try {
-    const res = await fetch('/posts/index.json');
+    const res = await fetch(`${import.meta.env.BASE_URL}posts/index.json`);
     if (res.ok) {
       const data = await res.json();
       // Mock category for demo if missing
@@ -139,6 +139,14 @@ const getDay = (dateStr: string) => {
 const getMonth = (dateStr: string) => {
   const date = new Date(dateStr);
   return date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+};
+
+const getImageUrl = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  // Remove leading slash if base url ends with one to avoid double slash
+  const cleanPath = url.startsWith('/') ? url.slice(1) : url;
+  return `${import.meta.env.BASE_URL}${cleanPath}`;
 };
 
 // Computed

@@ -117,7 +117,7 @@ onMounted(async () => {
   if (!isNewPost.value) {
     form.value.id = postId.value; // Set form.id for existing posts
     try {
-      const res = await fetch(`/posts/${postId.value}.md`);
+      const res = await fetch(`${import.meta.env.BASE_URL}posts/${postId.value}.md`);
       if (res.ok) {
         const text = await res.text();
         const parsed = parseFrontMatter(text);
