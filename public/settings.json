@@ -49,6 +49,36 @@
     ]
   },
   {
+    "section_key": "github_config",
+    "items": [
+      {
+        "id": "githubOwner",
+        "type": "text-input",
+        "label_key": "gh_owner",
+        "placeholder": "username"
+      },
+      {
+        "id": "githubRepo",
+        "type": "text-input",
+        "label_key": "gh_repo",
+        "placeholder": "repo-name"
+      },
+      {
+        "id": "githubBranch",
+        "type": "text-input",
+        "label_key": "gh_branch",
+        "placeholder": "main"
+      },
+      {
+        "id": "githubToken",
+        "type": "text-input",
+        "label_key": "gh_token",
+        "inputType": "password",
+        "placeholder": "ghp_..."
+      }
+    ]
+  },
+  {
     "section_key": "about",
     "items": [
       {

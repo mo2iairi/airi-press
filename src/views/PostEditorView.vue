@@ -75,11 +75,13 @@ import { ArrowLeft, Save } from 'lucide-vue-next';
 import MarkdownIt from 'markdown-it';
 // @ts-ignore
 import MarkdownItKatex from 'markdown-it-katex';
+import { useSystemStore } from '../stores/system';
 import { parseFrontMatter } from '../utils/frontmatter';
 import { useI18n } from '../composables/useI18n';
 
 const route = useRoute();
 const router = useRouter();
+const systemStore = useSystemStore();
 const md = new MarkdownIt();
 md.use(MarkdownItKatex);
 
@@ -196,9 +198,66 @@ const savePost = async () => {
       }
 
     } else {
-      // Production Mode: Redirect to Headless CMS
-      alert('In production, please use the CMS Dashboard to edit content.');
-      window.location.href = `${import.meta.env.BASE_URL}/admin/`;
+      // Production Mode: Save to GitHub via API
+      const { githubToken, githubOwner, githubRepo, githubBranch } = systemStore;
+      
+      if (!githubToken || !githubOwner || !githubRepo) {
+        const confirmSettings = confirm(t('github_config') + ' missing. Go to Settings?');
+        if (confirmSettings) router.push('/settings');
+        return;
+      }
+
+      const filename = `${form.value.id}.md`;
+      const path = `public/posts/${filename}`;
+      const apiUrl = `https://api.github.com/repos/${githubOwner}/${githubRepo}/contents/${path}`;
+
+      // 1. Get SHA (if exists) to allow update
+      let sha = '';
+      try {
+        const getRes = await fetch(apiUrl + `?ref=${githubBranch}`, {
+          headers: {
+            'Authorization': `Bearer ${githubToken}`,
+            'Accept': 'application/vnd.github+json',
+             'X-GitHub-Api-Version': '2022-11-28'
+          }
+        });
+        if (getRes.ok) {
+          const data = await getRes.json();
+          sha = data.sha;
+        }
+      } catch (e) {
+        console.log('File likely does not exist, creating new.');
+      }
+
+      // 2. Create/Update File
+      // Use UTF-8 safe Base64 encoding
+      const contentBase64 = btoa(unescape(encodeURIComponent(frontmatter)));
+      
+      const putRes = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${githubToken}`,
+            'Accept': 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28'
+        },
+        body: JSON.stringify({
+          message: `Update post ${form.value.title} via AiriPress`,
+          content: contentBase64,
+          branch: githubBranch,
+          sha: sha || undefined
+        })
+      });
+
+      if (putRes.ok) {
+        alert('Saved to GitHub! It may take a few minutes to deploy.');
+        if (isNewPost.value) {
+           router.replace(`/post/editor/${form.value.id}`);
+        }
+      } else {
+        const err = await putRes.json();
+        console.error(err);
+        throw new Error(err.message || 'GitHub API Error');
+      }
     }
   } catch (e) {
     console.error("Save cancelled or failed", e);

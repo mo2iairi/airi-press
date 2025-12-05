@@ -43,6 +43,21 @@
               </div>
             </div>
 
+            <!-- Type: Text Input -->
+            <div v-else-if="item.type === 'text-input'" class="setting-item">
+              <div class="label">
+                <span>{{ t(item.label_key) }}</span>
+              </div>
+              <div class="value-container">
+                <input 
+                  v-model="storeAny[item.id]" 
+                  class="setting-input"
+                  :type="item.inputType || 'text'"
+                  :placeholder="item.placeholder"
+                />
+              </div>
+            </div>
+
             <!-- Type: Complex (Navigation Link) -->
             <div 
               v-else 
@@ -120,6 +135,7 @@ interface SettingItem {
   files?: string[];
   display_value_key?: boolean;
   placeholder?: string; // Added placeholder
+  inputType?: string;
 }
 
 interface SettingSection {
@@ -278,6 +294,24 @@ h1 {
 .setting-select option {
   background: #333;
   color: white;
+}
+
+.setting-input {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: white;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  text-align: right;
+  width: 100%;
+  max-width: 200px;
+  outline: none;
+}
+
+.setting-input:focus {
+  border-color: rgba(255,255,255,0.3);
+  background: rgba(0,0,0,0.3);
 }
 
 .current-value {
