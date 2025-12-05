@@ -1,0 +1,62 @@
+[
+  {
+    "section_key": "general",
+    "items": [
+      {
+        "id": "language",
+        "type": "select",
+        "label_key": "language",
+        "display_value_key": true,
+        "options": [
+          { "label_key": "zh_cn", "value": "zh" },
+          { "label_key": "en_us", "value": "en" }
+        ]
+      },
+      {
+        "id": "timezone",
+        "type": "select",
+        "label_key": "timezone",
+        "display_value_key": false,
+        "options": [ "Asia/Shanghai", "Asia/Tokyo", "America/New_York", "Europe/London", "UTC" ]
+      }
+    ]
+  },
+  {
+    "section_key": "appearance",
+    "items": [
+      {
+        "id": "theme",
+        "type": "theme-cards",
+        "label_key": "theme"
+      },
+      {
+        "id": "wallpaper",
+        "type": "wallpaper-grid",
+        "label_key": "wallpaper",
+        "path": "/wallpaper/プロジェクトセカイ カラフルステージ！ feat. 初音ミク/",
+        "files": [ 
+          "1005b.webp", 
+          "1023b.webp", 
+          "1057b.webp", 
+          "1128b.webp", 
+          "1151b.webp", 
+          "1174b.webp",
+          "1007b.webp",
+          "1009b.webp",
+          "1030b.webp"
+        ]
+      }
+    ]
+  },
+  {
+    "section_key": "about",
+    "items": [
+      {
+        "id": "version",
+        "type": "text",
+        "label_key": "version",
+        "value": "0.0.0"
+      }
+    ]
+  }
+]

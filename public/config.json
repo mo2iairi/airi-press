@@ -1,0 +1,49 @@
+[
+  {
+    "id": "clock",
+    "name": "Clock",
+    "icon": "clock",
+    "x": 1,
+    "y": 2,
+    "w": 4,
+    "h": 2,
+    "action": "route",
+    "url": ""
+  },
+  {
+    "id": "settings",
+    "name": "设置",
+    "icon": "settings",
+    "x": 1,
+    "y": 7,
+    "w": 1,
+    "h": 1,
+    "action": "route",
+    "url": "/setting",
+    "bgColor": "#8e8e93"
+  },
+  {
+    "id": "posts",
+    "name": "文章",
+    "icon": "book-open",
+    "x": 2,
+    "y": 7,
+    "w": 1,
+    "h": 1,
+    "action": "route",
+    "url": "/post",
+    "bgColor": "#007aff"
+  },
+  {
+    "id": "github",
+    "name": "GitHub",
+    "icon": "github",
+    "x": 3,
+    "y": 7,
+    "w": 1,
+    "h": 1,
+    "action": "link",
+    "url": "https://github.com",
+    "bgColor": "#24292e"
+  }
+]

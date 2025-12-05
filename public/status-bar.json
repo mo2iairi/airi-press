@@ -1,0 +1,13 @@
+{
+  "toggles": [
+    { "id": "wifi", "icon": "Wifi", "active": true },
+    { "id": "bluetooth", "icon": "Bluetooth", "active": true },
+    { "id": "signal", "icon": "Signal", "active": true },
+    { "id": "plane", "icon": "Plane", "active": false }
+  ],
+  "shortcuts": [
+    { "id": "home", "icon": "Home", "label_key": "home", "action": "route", "url": "/" },
+    { "id": "posts", "icon": "BookOpen", "label_key": "posts", "action": "route", "url": "/post" },
+    { "id": "settings", "icon": "Settings", "label_key": "settings", "action": "route", "url": "/setting" }
+  ]
+}
