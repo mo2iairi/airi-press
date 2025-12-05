@@ -9,7 +9,7 @@ export const useSystemStore = defineStore('system', () => {
   const isStatusBarOpen = ref(false);
   
   // Default wallpaper
-  const wallpaper = ref('/wallpaper/プロジェクトセカイ カラフルステージ！ feat. 初音ミク/1057b.webp');
+  const wallpaper = ref(`${import.meta.env.BASE_URL}bg/プロジェクトセカイ カラフルステージ！ feat. 初音ミク/1005b.webp`);
   
   const timezone = ref(Intl.DateTimeFormat().resolvedOptions().timeZone);
 

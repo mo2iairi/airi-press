@@ -87,11 +87,11 @@
             v-for="file in activeItem.files" 
             :key="file" 
             class="wallpaper-item"
-            :class="{ active: systemStore.wallpaper === activeItem.path + file }"
-            @click="systemStore.wallpaper = activeItem.path + file"
-            :style="{ backgroundImage: `url('${activeItem.path + file}')` }"
+            :class="{ active: systemStore.wallpaper === getAssetUrl(activeItem.path + file) }"
+            @click="systemStore.wallpaper = getAssetUrl(activeItem.path + file)"
+            :style="{ backgroundImage: `url('${getAssetUrl(activeItem.path + file)}')` }"
           >
-            <div v-if="systemStore.wallpaper === activeItem.path + file" class="check-badge">
+            <div v-if="systemStore.wallpaper === getAssetUrl(activeItem.path + file)" class="check-badge">
                 <Check :size="16" />
             </div>
           </div>
@@ -139,7 +139,7 @@ const activeItem = ref<SettingItem | null>(null);
 
 onMounted(async () => {
   try {
-    const response = await fetch('/settings.json');
+    const response = await fetch(`${import.meta.env.BASE_URL}settings.json`);
     settingsConfig.value = await response.json();
   } catch (error) {
     console.error('Failed to load settings config:', error);
@@ -156,6 +156,12 @@ const handleBack = () => {
   } else {
     router.back();
   }
+};
+
+const getAssetUrl = (path: string) => {
+  // Ensure path doesn't start with / if BASE_URL ends with /
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `${import.meta.env.BASE_URL}${cleanPath}`;
 };
 </script>
 

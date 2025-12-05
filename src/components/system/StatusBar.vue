@@ -181,7 +181,7 @@ onMounted(async () => {
 
   // Load Config
   try {
-    const res = await fetch('/status-bar.json');
+    const res = await fetch(`${import.meta.env.BASE_URL}status-bar.json`);
     if (res.ok) {
       config.value = await res.json();
     }

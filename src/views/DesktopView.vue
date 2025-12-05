@@ -20,7 +20,7 @@ const store = useDesktopStore();
 const { icons } = storeToRefs(store);
 
 onMounted(() => {
-  store.loadConfig('/config.json');
+  store.loadConfig(`${import.meta.env.BASE_URL}config.json`);
 });
 </script>
 
