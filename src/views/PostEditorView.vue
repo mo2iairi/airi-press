@@ -198,7 +198,7 @@ const savePost = async () => {
     } else {
       // Production Mode: Redirect to Headless CMS
       alert('In production, please use the CMS Dashboard to edit content.');
-      window.location.href = '/admin/';
+      window.location.href = `${import.meta.env.BASE_URL}/admin/`;
     }
   } catch (e) {
     console.error("Save cancelled or failed", e);

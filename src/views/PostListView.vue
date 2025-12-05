@@ -192,7 +192,7 @@ const openPost = (id: string) => {
 
 const createNew = () => {
   if (import.meta.env.PROD) {
-    window.location.href = '/admin/';
+    window.location.href = `${import.meta.env.BASE_URL}/admin/`;
   } else {
     router.push('/post/editor/new');
   }
