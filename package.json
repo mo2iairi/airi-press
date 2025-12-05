@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "cross-env VITE_LOCAL_MODE=true vite",
     "build": "cross-env VITE_LOCAL_MODE=false vue-tsc -b && vite build",
-    "build:gh": "cross-env VITE_DEPLOY_TARGET=github vue-tsc -b && vite build",
+    "build:gh": "cross-env VITE_DEPLOY_TARGET=github vue-tsc -b && vite build --base=/airi-press/",
     "preview": "vite preview",
     "gen:posts": "tsx scripts/generate-posts.ts"
   },
