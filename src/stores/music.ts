@@ -40,6 +40,9 @@ export interface Asmr200Item {
 export type MusicItem = Folder | FlatPlaylist | Asmr200Item;
 
 export const useMusicStore = defineStore('music', () => {
+  const ASMR_API_BASE = import.meta.env.VITE_DEPLOY_TARGET === 'github'
+    ? 'https://api.asmr-200.com'
+    : '/api-asmr200';
   const systemStore = useSystemStore();
   const musicCollection = ref<MusicItem[]>([]);
   const currentPlaylistId = ref<string | null>(null);
@@ -112,11 +115,11 @@ export const useMusicStore = defineStore('music', () => {
 
   const fetchAsmr200Playlist = async (sourceId: string, playlistId: string): Promise<FlatPlaylist | null> => {
     try {
-      const workInfoRes = await fetch(`/api-asmr200/api/workInfo/${sourceId}`);
+      const workInfoRes = await fetch(`${ASMR_API_BASE}/api/workInfo/${sourceId}`);
       if (!workInfoRes.ok) throw new Error(`Failed to fetch ASMR work info`);
       const workInfo = await workInfoRes.json();
 
-      const tracksRes = await fetch(`/api-asmr200/api/tracks/${sourceId}?v=2`);
+      const tracksRes = await fetch(`${ASMR_API_BASE}/api/tracks/${sourceId}?v=2`);
       if (!tracksRes.ok) throw new Error(`Failed to fetch ASMR tracks`);
       const tracksData = await tracksRes.json();
 
@@ -251,7 +254,7 @@ export const useMusicStore = defineStore('music', () => {
         // === 修复 CORS 问题的关键代码 ===
         // 将绝对 URL 转换为走本地代理的相对 URL
         let fetchUrl = song.lrcUrl;
-        if (fetchUrl.startsWith('https://api.asmr-200.com')) {
+        if (import.meta.env.VITE_DEPLOY_TARGET !== 'github' && fetchUrl.startsWith('https://api.asmr-200.com')) {
           fetchUrl = fetchUrl.replace('https://api.asmr-200.com', '/api-asmr200');
         }
         // ==============================
