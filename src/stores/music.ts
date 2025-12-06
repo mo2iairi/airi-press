@@ -40,9 +40,9 @@ export interface Asmr200Item {
 export type MusicItem = Folder | FlatPlaylist | Asmr200Item;
 
 export const useMusicStore = defineStore('music', () => {
-  const ASMR_API_BASE = import.meta.env.VITE_DEPLOY_TARGET === 'github'
+  const ASMR_API_BASE = import.meta.env.VITE_ASMR_API_URL || (import.meta.env.VITE_DEPLOY_TARGET === 'github'
     ? 'https://api.asmr-200.com'
-    : '/api-asmr200';
+    : '/api-asmr200');
   const systemStore = useSystemStore();
   const musicCollection = ref<MusicItem[]>([]);
   const currentPlaylistId = ref<string | null>(null);
@@ -222,6 +222,8 @@ export const useMusicStore = defineStore('music', () => {
         const playableItem = item as FlatPlaylist | Asmr200Item;
         if (playableItem.cover && !playableItem.cover.startsWith('http')) {
           playableItem.cover = import.meta.env.BASE_URL + playableItem.cover;
+        } else if (!playableItem.cover) { // If cover is null or empty, provide placeholder
+          playableItem.cover = import.meta.env.BASE_URL + 'music/placeholder.png';
         }
         if (playableItem.type === 'local') { // Only local playlists have song URLs
           playableItem.songs.forEach(song => {
@@ -230,6 +232,8 @@ export const useMusicStore = defineStore('music', () => {
             }
             if (song.cover && !song.cover.startsWith('http')) {
               song.cover = import.meta.env.BASE_URL + song.cover;
+            } else if (!song.cover) { // If song cover is null or empty
+              song.cover = import.meta.env.BASE_URL + 'music/placeholder.png';
             }
           });
         }
