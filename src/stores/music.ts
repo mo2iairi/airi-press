@@ -224,7 +224,8 @@ export const useMusicStore = defineStore('music', () => {
     }
 
     if (selectedItem.type === 'asmr-200') {
-      const fetchedPl = await fetchAsmr200Playlist(selectedItem.sourceId, selectedItem.id);
+      const asmrItem = selectedItem as Asmr200Item;
+      const fetchedPl = await fetchAsmr200Playlist(asmrItem.sourceId, asmrItem.id);
       activePlayablePlaylist.value = fetchedPl || null;
     } else {
       activePlayablePlaylist.value = selectedItem as FlatPlaylist;
@@ -285,16 +286,34 @@ export const useMusicStore = defineStore('music', () => {
     if (!currentPlaylist.value?.songs || !currentSongId.value) return;
     const songs = currentPlaylist.value.songs;
     const idx = songs.findIndex(s => s.id === currentSongId.value);
-    if (idx !== -1 && idx < songs.length - 1) playSong(songs[idx + 1]);
-    else if (songs.length > 0) playSong(songs[0]);
+    
+    let nextSong: Song | undefined;
+    if (idx !== -1 && idx < songs.length - 1) {
+      nextSong = songs[idx + 1];
+    } else if (songs.length > 0) {
+      nextSong = songs[0];
+    }
+
+    if (nextSong) {
+      playSong(nextSong);
+    }
   };
 
   const prev = () => {
     if (!currentPlaylist.value?.songs || !currentSongId.value) return;
     const songs = currentPlaylist.value.songs;
     const idx = songs.findIndex(s => s.id === currentSongId.value);
-    if (idx > 0) playSong(songs[idx - 1]);
-    else if (songs.length > 0) playSong(songs[songs.length - 1]);
+    
+    let prevSong: Song | undefined;
+    if (idx > 0) {
+      prevSong = songs[idx - 1];
+    } else if (songs.length > 0) {
+      prevSong = songs[songs.length - 1];
+    }
+
+    if (prevSong) {
+      playSong(prevSong);
+    }
   };
   
   const seek = (time: number) => {

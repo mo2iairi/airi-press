@@ -38,33 +38,33 @@ const md = new MarkdownIt({
 md.use(MarkdownItKatex);
 
 // Override fence renderer
-const defaultFenceRenderer = md.renderer.rules.fence;
-md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+
+md.renderer.rules.fence = (tokens, idx, _options, _env, _self) => {
   const token = tokens[idx];
-  const info = token.info ? md.utils.unescapeAll(token.info).trim() : '';
+  const info = token!.info ? md.utils.unescapeAll(token!.info).trim() : '';
   let langName = '';
 
   if (info) {
-    langName = info.split(/\s+/g)[0];
+    langName = (info.split(/\s+/g)[0] || '');
   }
 
   let highlighted = '';
   if (langName && hljs.getLanguage(langName)) {
     try {
-      highlighted = hljs.highlight(token.content, { language: langName, ignoreIllegals: true }).value;
+      highlighted = hljs.highlight(token!.content, { language: langName, ignoreIllegals: true }).value;
     } catch (__) {
-      highlighted = md.utils.escapeHtml(token.content);
+      highlighted = md.utils.escapeHtml(token!.content);
     }
   } else {
-    highlighted = md.utils.escapeHtml(token.content);
+    highlighted = md.utils.escapeHtml(token!.content);
   }
 
   const headerHtml = `
     <div class="code-block-header">
       <span class="code-lang">${langName || 'text'}</span>
       <div class="code-actions">
-        <button class="code-btn copy-btn" data-code="${encodeURIComponent(token.content)}">Copy</button>
-        <button class="code-btn download-btn" data-lang="${langName || 'txt'}" data-code="${encodeURIComponent(token.content)}">Download</button>
+        <button class="code-btn copy-btn" data-code="${encodeURIComponent(token!.content)}">Copy</button>
+        <button class="code-btn download-btn" data-lang="${langName || 'txt'}" data-code="${encodeURIComponent(token!.content)}">Download</button>
       </div>
     </div>`;
 
@@ -113,9 +113,9 @@ const setupCodeBlockActions = () => {
   // Setup Copy buttons
   document.querySelectorAll('.custom-code-block .copy-btn').forEach(button => {
     // Remove previous listeners if any to avoid duplicates
-    button.onclick = null; 
-    button.onclick = async () => {
-      const codeToCopy = decodeURIComponent(button.dataset.code || '');
+    (button as HTMLButtonElement).onclick = null; 
+    (button as HTMLButtonElement).onclick = async () => {
+      const codeToCopy = decodeURIComponent((button as HTMLButtonElement).dataset.code || '');
       try {
         await navigator.clipboard.writeText(codeToCopy);
         const originalText = button.textContent;
@@ -132,10 +132,10 @@ const setupCodeBlockActions = () => {
   // Setup Download buttons
   document.querySelectorAll('.custom-code-block .download-btn').forEach(button => {
     // Remove previous listeners if any to avoid duplicates
-    button.onclick = null;
-    button.onclick = () => {
-      const codeToDownload = decodeURIComponent(button.dataset.code || '');
-      const lang = button.dataset.lang || 'txt';
+    (button as HTMLButtonElement).onclick = null;
+    (button as HTMLButtonElement).onclick = () => {
+      const codeToDownload = decodeURIComponent((button as HTMLButtonElement).dataset.code || '');
+      const lang = (button as HTMLButtonElement).dataset.lang || 'txt';
       const blob = new Blob([codeToDownload], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');

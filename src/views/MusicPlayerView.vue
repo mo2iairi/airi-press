@@ -12,7 +12,7 @@
       </div>
 
       <div class="playlist-list">
-        <template v-for="(item, index) in displayedMusicItems" :key="item?.id || index">
+        <template v-for="item in displayedMusicItems" :key="item.id">
           <div class="playlist-item"
             :class="{ 'is-folder': item.type === 'folder', 'active': currentPlaylistId === item.id }"
             @click="handleItemClick(item)">
@@ -194,11 +194,12 @@ const parsedLrc = computed((): LyricLine[] => {
   for (const line of lines) {
     const match = line.match(timeRegex);
     if (match) {
-      const minutes = parseInt(match[1]);
-      const seconds = parseInt(match[2]);
-      const milliseconds = parseInt(match[3].length === 2 ? match[3] + '0' : match[3]);
+      const minutes = parseInt(match[1] || '0');
+      const seconds = parseInt(match[2] || '0');
+      let msStr = match[3] || '0';
+      const milliseconds = parseInt(msStr.length === 2 ? msStr + '0' : msStr);
       const time = minutes * 60 + seconds + milliseconds / 1000;
-      const text = match[4].trim();
+      const text = (match[4] || '').trim();
       if (text) result.push({ time, text });
     }
   }
