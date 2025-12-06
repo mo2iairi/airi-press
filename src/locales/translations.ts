@@ -23,6 +23,30 @@ export const translations = {
     'clock': 'Clock',
     'posts': 'Posts',
     'github': 'GitHub',
+    'calculator': 'Calculator',
+    'music': 'Music',
+
+    // Music App
+    music_library: 'Library',
+    music_no_song: 'Not Playing',
+    music_select_playlist: 'Select a playlist',
+    songs: 'Songs',
+    play: 'Play',
+
+    // Calculator App
+    calculator_app: 'Calculator & Tools',
+    calc_science: 'Scientific',
+    calc_base64: 'Base64',
+    calc_hash: 'Hash',
+    calc_time: 'Timestamp',
+    calc_base: 'Base Conv.',
+    text_input: 'Input Text',
+    enter_text: 'Type something...',
+    calculate: 'Calculate',
+    now: 'Current Time',
+    refresh: 'Refresh',
+    timestamp_to_date: 'Timestamp -> Date',
+    date_to_timestamp: 'Date -> Timestamp',
 
     // Post List
     search_placeholder: 'Search posts...',
@@ -76,13 +100,35 @@ export const translations = {
             home: '主页',
             
             // Apps (IDs)
-            'clock': '时钟',
-            'posts': '文章',
-            'github': 'GitHub',
-        
-            // Post List
-            search_placeholder: '搜索文章...',
-            filter_category: '分类',
+                'clock': '时钟',
+                'posts': '文章',
+                    'github': 'GitHub',
+                    'calculator': '计算器',
+                    'music': '音乐',
+                
+                    // Music App
+                    music_library: '音乐库',
+                    music_no_song: '未播放',
+                    music_select_playlist: '选择歌单',
+                    songs: '首歌曲',
+                    play: '播放全部',
+                
+                    // Calculator App
+                    calculator_app: '全能计算器',                calc_science: '科学计算',
+                calc_base64: 'Base64',
+                calc_hash: '哈希计算',
+                calc_time: '时间戳',
+                calc_base: '进制转换',
+                text_input: '输入文本',
+                enter_text: '输入内容...',
+                calculate: '计算',
+                now: '当前时间',
+                refresh: '刷新',
+                timestamp_to_date: '时间戳 -> 日期',
+                date_to_timestamp: '日期 -> 时间戳',
+            
+                // Post List
+                search_placeholder: '搜索文章...',            filter_category: '分类',
             filter_tag: '标签',
             filter_date: '日期',
             all_categories: '所有分类',

@@ -62,4 +62,13 @@ export default defineConfig({
     vue(),
     localPostManager()
   ],
+  server: {
+    proxy: {
+      '/api-asmr200': {
+        target: 'https://api.asmr-200.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api-asmr200/, '')
+      }
+    }
+  }
 })

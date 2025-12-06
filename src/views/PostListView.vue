@@ -187,7 +187,7 @@ const filteredPosts = computed(() => {
 });
 
 const openPost = (id: string) => {
-  router.push(`/post/editor/${id}`);
+  router.push(`/post/${id}`);
 };
 
 const createNew = () => {

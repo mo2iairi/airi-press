@@ -1,0 +1,67 @@
+[
+  {
+    "id": "f-pjsk",
+    "name": "プロジェクトセカイ カラフルステージ！ feat. 初音ミク",
+    "type": "folder",
+    "children": [
+      {
+        "id": "pl-pjsk-1",
+        "name": "Leo/need",
+        "type": "local",
+        "cover": "music/Leo need/image.png",
+        "songs": [
+          { 
+            "id": "s1", 
+            "title": "携帯恋話", 
+            "artist": "25時、ナイトコードで。", 
+            "url": "music/25時/携帯恋話/携帯恋話-full-東雲 絵名+暁山 瑞希+初音 ミク.mp3", 
+            "duration": "6:12",
+            "cover": "music/25時/携帯恋話/携帯恋話.png"
+          }
+        ]
+      },
+      {
+        "id": "pl-pjsk-5",
+        "name": "25時、ナイトコードで。",
+        "type": "local",
+        "cover": "music/25時/image.png",
+        "songs": [
+          { 
+            "id": "s3", 
+            "title": "Peaky Peaky", 
+            "artist": "Leo/need", 
+            "url": "music/Leo need/Peaky Peaky/Peaky Peaky-full-日野森 志歩+星乃 一歌+KAITO+天馬 咲希+望月 穂波.mp3", 
+            "duration": "5:44",
+            "cover": "music/Leo need/Peaky Peaky/Peaky Peaky.png"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "f-asmr",
+    "name": "ASMR",
+    "type": "folder",
+    "children": [
+      {
+        "id": "f-atelier-mail",
+        "name": "アトリエメール",
+        "type": "folder",
+        "children": [
+          {
+            "id": "asmr-416816",
+            "name": "【アズールレーンASMR】二人のエムデンの両耳安眠誘導",
+            "type": "asmr-200",
+            "sourceId": "416816"
+          },
+          {
+            "id": "asmr-01203453",
+            "name": "【アズールレーンASMR】 モガドールのフェチ聖裁",
+            "type": "asmr-200",
+            "sourceId": "01203453"
+          }
+        ]
+      }
+    ]
+  }
+]

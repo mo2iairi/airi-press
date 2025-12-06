@@ -12,6 +12,9 @@
     <!-- Special Case for Clock Widget -->
     <ClockWidget v-if="icon.id === 'clock'" />
 
+    <!-- Special Case for Music Widget -->
+    <MusicWidget v-else-if="icon.id === 'music'" />
+
     <!-- Standard Icon -->
     <div v-else class="app-icon-container">
       <div class="app-icon" :style="{ backgroundColor: icon.bgColor || '#333' }">
@@ -27,6 +30,7 @@
 import { useRouter } from 'vue-router';
 import type { DesktopIcon } from '../../stores/desktop';
 import ClockWidget from './ClockWidget.vue';
+import MusicWidget from './MusicWidget.vue';
 import * as LucideIcons from 'lucide-vue-next';
 import { useI18n } from '../../composables/useI18n';
 

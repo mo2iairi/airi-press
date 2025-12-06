@@ -69,12 +69,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeft, Save } from 'lucide-vue-next';
 import MarkdownIt from 'markdown-it';
 // @ts-ignore
 import MarkdownItKatex from 'markdown-it-katex';
+import hljs from 'highlight.js'; // Import highlight.js
+
 import { useSystemStore } from '../stores/system';
 import { parseFrontMatter } from '../utils/frontmatter';
 import { useI18n } from '../composables/useI18n';
@@ -82,8 +84,46 @@ import { useI18n } from '../composables/useI18n';
 const route = useRoute();
 const router = useRouter();
 const systemStore = useSystemStore();
-const md = new MarkdownIt();
+const md = new MarkdownIt({
+  html: true, // Enable HTML tags in source
+  linkify: true, // Autoconvert URL-like text to links
+  typographer: true // Enable some language-neutral replacement + quotes beautification
+});
 md.use(MarkdownItKatex);
+
+// Override fence renderer
+const defaultFenceRenderer = md.renderer.rules.fence;
+md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+  const token = tokens[idx];
+  const info = token.info ? md.utils.unescapeAll(token.info).trim() : '';
+  let langName = '';
+
+  if (info) {
+    langName = info.split(/\s+/g)[0];
+  }
+
+  let highlighted = '';
+  if (langName && hljs.getLanguage(langName)) {
+    try {
+      highlighted = hljs.highlight(token.content, { language: langName, ignoreIllegals: true }).value;
+    } catch (__) {
+      highlighted = md.utils.escapeHtml(token.content);
+    }
+  } else {
+    highlighted = md.utils.escapeHtml(token.content);
+  }
+
+  const headerHtml = `
+    <div class="code-block-header">
+      <span class="code-lang">${langName || 'text'}</span>
+      <div class="code-actions">
+        <button class="code-btn copy-btn" data-code="${encodeURIComponent(token.content)}">Copy</button>
+        <button class="code-btn download-btn" data-lang="${langName || 'txt'}" data-code="${encodeURIComponent(token.content)}">Download</button>
+      </div>
+    </div>`;
+
+  return `<div class="custom-code-block">${headerHtml}<pre><code class="hljs">${highlighted}</code></pre></div>`;
+};
 
 const { t } = useI18n();
 
@@ -114,38 +154,6 @@ watch(() => form.value.title, (newTitle) => {
 const renderedContent = computed(() => {
   return md.render(content.value);
 });
-
-onMounted(async () => {
-  if (!isNewPost.value) {
-    form.value.id = postId.value; // Set form.id for existing posts
-    try {
-      const res = await fetch(`${import.meta.env.BASE_URL}posts/${postId.value}.md`);
-      if (res.ok) {
-        const text = await res.text();
-        const parsed = parseFrontMatter(text);
-        const attrs = parsed.attributes;
-        
-        form.value.title = attrs.title || '';
-        form.value.date = attrs.date ? new Date(attrs.date).toISOString().split('T')[0] : '';
-        form.value.tags = Array.isArray(attrs.tags) ? attrs.tags.join(', ') : (attrs.tags || '');
-        form.value.category = attrs.category || 'General';
-        form.value.imageUrl = attrs.imageUrl || attrs.cover || '';
-        form.value.description = attrs.description || '';
-        form.value.pinnedWeight = typeof attrs.pinnedWeight === 'number' ? attrs.pinnedWeight : 0;
-        content.value = parsed.body;
-      }
-    } catch (e) {
-      console.error("Failed to load post", e);
-    }
-  } else {
-    // For new post, pre-fill ID based on current timestamp to make it unique quickly
-    form.value.id = `post-${Date.now()}`;
-  }
-});
-
-const goBack = () => {
-  router.back();
-};
 
 const savePost = async () => {
   // Ensure ID is set for new posts based on title if not manual
@@ -264,6 +272,97 @@ const savePost = async () => {
     alert('Save failed: ' + e);
   }
 };
+
+// New functions for copy/download
+const setupCodeBlockActions = () => {
+  // Setup Copy buttons
+  document.querySelectorAll('.preview-content .custom-code-block .copy-btn').forEach(button => {
+    // Remove previous listeners if any to avoid duplicates
+    button.onclick = null;
+    button.onclick = async () => {
+      const codeToCopy = decodeURIComponent(button.dataset.code || '');
+      try {
+        await navigator.clipboard.writeText(codeToCopy);
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        setTimeout(() => {
+          button.textContent = originalText;
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+      }
+    };
+  });
+
+  // Setup Download buttons
+  document.querySelectorAll('.preview-content .custom-code-block .download-btn').forEach(button => {
+    // Remove previous listeners if any to avoid duplicates
+    button.onclick = null;
+    button.onclick = () => {
+      const codeToDownload = decodeURIComponent(button.dataset.code || '');
+      const lang = button.dataset.lang || 'txt';
+      const blob = new Blob([codeToDownload], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `code.${lang}`;
+      document.body.appendChild(a); // Required for Firefox
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+  });
+};
+
+
+onMounted(async () => {
+  if (!isNewPost.value) {
+    form.value.id = postId.value; // Set form.id for existing posts
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}posts/${postId.value}.md`);
+      if (res.ok) {
+        const text = await res.text();
+        const parsed = parseFrontMatter(text);
+        const attrs = parsed.attributes;
+        
+        form.value.title = attrs.title || '';
+        form.value.date = attrs.date ? new Date(attrs.date).toISOString().split('T')[0] : '';
+        form.value.tags = Array.isArray(attrs.tags) ? attrs.tags.join(', ') : (attrs.tags || '');
+        form.value.category = attrs.category || 'General';
+        form.value.imageUrl = attrs.imageUrl || attrs.cover || '';
+        form.value.description = attrs.description || '';
+        form.value.pinnedWeight = typeof attrs.pinnedWeight === 'number' ? attrs.pinnedWeight : 0;
+        content.value = parsed.body;
+        nextTick(() => { // Ensure DOM is updated before setting up buttons
+          setupCodeBlockActions();
+        });
+      }
+    } catch (e) {
+      console.error("Failed to load post", e);
+    }
+  } else {
+    // For new post, pre-fill ID based on current timestamp to make it unique quickly
+    form.value.id = `post-${Date.now()}`;
+  }
+});
+
+// Watch for changes in renderedContent to re-setup listeners when preview changes
+watch(renderedContent, () => {
+  if (isPreview.value) { // Only re-setup if currently in preview mode
+    nextTick(() => {
+      setupCodeBlockActions();
+    });
+  }
+});
+
+// Watch for changes in isPreview to setup listeners when switching to preview mode
+watch(isPreview, (newVal) => {
+  if (newVal) { // If switching to preview mode
+    nextTick(() => {
+      setupCodeBlockActions();
+    });
+  }
+});
 </script>
 
 <style scoped>

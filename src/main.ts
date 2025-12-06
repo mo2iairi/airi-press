@@ -5,6 +5,7 @@ import router from './router'
 import './assets/main.css'
 import './assets/markdown.css'
 import 'katex/dist/katex.min.css'
+import 'highlight.js/styles/atom-one-dark.css';
 
 const app = createApp(App)
 

@@ -11,6 +11,17 @@
     "url": ""
   },
   {
+    "id": "music",
+    "name": "Music",
+    "icon": "music",
+    "x": 1,
+    "y": 5,
+    "w": 4,
+    "h": 2,
+    "action": "route",
+    "url": "/music"
+  },
+  {
     "id": "settings",
     "name": "设置",
     "icon": "settings",
@@ -45,5 +56,17 @@
     "action": "link",
     "url": "https://github.com",
     "bgColor": "#24292e"
+  },
+  {
+    "id": "calculator",
+    "name": "Calculator",
+    "icon": "calculator",
+    "x": 4,
+    "y": 7,
+    "w": 1,
+    "h": 1,
+    "action": "route",
+    "url": "/calculator",
+    "bgColor": "#ff9500"
   }
 ]
