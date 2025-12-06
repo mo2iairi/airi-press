@@ -68,7 +68,7 @@
 
     <div class="player-bar">
       <div class="pb-info">
-        <img v-if="currentSong" :src="`${import.meta.env.BASE_URL}${currentSong.cover}`" class="pb-cover" />
+        <img v-if="currentSong" :src="currentSong.cover" class="pb-cover" />
         <div class="pb-text">
           <div class="pb-title">{{ currentSong?.title || t('music_no_song') }}</div>
           <div class="pb-artist">{{ currentSong?.artist || '--' }}</div>
@@ -174,9 +174,9 @@ const formatTime = (seconds: number) => {
 const getCoverUrl = (item: MusicItem): string => {
   if (item.type !== 'folder') {
     const playableItem = item as FlatPlaylist | Asmr200Item;
-    return `${import.meta.env.BASE_URL}${playableItem.cover || 'music/placeholder.png'}`;
+    return playableItem.cover || 'music/placeholder.png';
   }
-  return `${import.meta.env.BASE_URL}music/placeholder.png`;
+  return 'music/placeholder.png';
 };
 
 // --- LRC Logic ---

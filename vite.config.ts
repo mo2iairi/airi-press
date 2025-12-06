@@ -67,7 +67,12 @@ export default defineConfig({
       '/api-asmr200': {
         target: 'https://api.asmr-200.com',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api-asmr200/, '')
+        rewrite: (path) => path.replace(/^\/api-asmr200/, ''),
+        configure: (proxy, options) => {
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            proxyReq.setHeader('Referer', 'https://asmr.one/');
+          });
+        }
       }
     }
   }

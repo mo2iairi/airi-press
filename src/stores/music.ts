@@ -185,7 +185,9 @@ export const useMusicStore = defineStore('music', () => {
     try {
       const res = await fetch(`${import.meta.env.BASE_URL}music.json`);
       if (res.ok) {
-        musicCollection.value = await res.json();
+        const rawMusicCollection = await res.json();
+        processMusicPaths(rawMusicCollection); // Process paths after loading
+        musicCollection.value = rawMusicCollection;
         const firstPlayableId = findFirstPlayable(musicCollection.value);
         if (firstPlayableId) await selectPlaylist(firstPlayableId);
       }
@@ -211,6 +213,30 @@ export const useMusicStore = defineStore('music', () => {
       }
     }
     return null;
+  };
+
+  // Helper to prepend BASE_URL to relative paths
+  const processMusicPaths = (items: MusicItem[]) => {
+    items.forEach(item => {
+      if (item.type !== 'folder') { // FlatPlaylist or Asmr200Item
+        const playableItem = item as FlatPlaylist | Asmr200Item;
+        if (playableItem.cover && !playableItem.cover.startsWith('http')) {
+          playableItem.cover = import.meta.env.BASE_URL + playableItem.cover;
+        }
+        if (playableItem.type === 'local') { // Only local playlists have song URLs
+          playableItem.songs.forEach(song => {
+            if (song.url && !song.url.startsWith('http')) {
+              song.url = import.meta.env.BASE_URL + song.url;
+            }
+            if (song.cover && !song.cover.startsWith('http')) {
+              song.cover = import.meta.env.BASE_URL + song.cover;
+            }
+          });
+        }
+      } else if (item.type === 'folder' && item.children) {
+        processMusicPaths(item.children); // Recurse for folders
+      }
+    });
   };
 
   const selectPlaylist = async (id: string) => {
