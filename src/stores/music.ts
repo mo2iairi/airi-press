@@ -41,9 +41,12 @@ export type MusicItem = Folder | FlatPlaylist | Asmr200Item;
 
 export const useMusicStore = defineStore('music', () => {
   const ASMR_API_BASE = (() => {
+    // 如果是 GitHub 部署，使用你的 Cloudflare Worker 地址
     if (import.meta.env.VITE_DEPLOY_TARGET === 'github') {
-      return 'https://api.asmr-200.com';
+      // 替换为你刚才创建的 Worker 地址，不要带末尾的斜杠
+      return 'https://asmr-200-proxy.mo2iairi.workers.dev'; 
     }
+    // 本地开发继续使用 Vite 代理
     return '/api-asmr200';
   })();
   const systemStore = useSystemStore();
@@ -284,13 +287,19 @@ export const useMusicStore = defineStore('music', () => {
     currentLrcContent.value = null; // 清除上一首的歌词
     if (song.lrcUrl) {
       try {
-        // === 修复 CORS 问题的关键代码 ===
-        // 将绝对 URL 转换为走本地代理的相对 URL
         let fetchUrl = song.lrcUrl;
-        if (import.meta.env.VITE_DEPLOY_TARGET !== 'github' && fetchUrl.startsWith('https://api.asmr-200.com')) {
-          fetchUrl = fetchUrl.replace('https://api.asmr-200.com', '/api-asmr200');
+        // 如果是 GitHub 部署，并且 URL 是原本的 API 地址，替换为 Worker 地址
+        if (import.meta.env.VITE_DEPLOY_TARGET === 'github') {
+           if (fetchUrl.startsWith('https://api.asmr-200.com')) {
+             // 替换为你的 Worker 地址
+             fetchUrl = fetchUrl.replace('https://api.asmr-200.com', 'https://asmr-proxy.你的名字.workers.dev');
+           }
+        } else {
+           // 本地开发逻辑
+           if (fetchUrl.startsWith('https://api.asmr-200.com')) {
+             fetchUrl = fetchUrl.replace('https://api.asmr-200.com', '/api-asmr200');
+           }
         }
-        // ==============================
 
         const lrcRes = await fetch(fetchUrl);
         if (lrcRes.ok) {
