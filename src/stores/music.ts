@@ -292,7 +292,7 @@ export const useMusicStore = defineStore('music', () => {
         if (import.meta.env.VITE_DEPLOY_TARGET === 'github') {
            if (fetchUrl.startsWith('https://api.asmr-200.com')) {
              // 替换为你的 Worker 地址
-             fetchUrl = fetchUrl.replace('https://api.asmr-200.com', 'https://asmr-proxy.你的名字.workers.dev');
+             fetchUrl = fetchUrl.replace('https://api.asmr-200.com', 'https://asmr-200-proxy.mo2iairi.workers.dev');
            }
         } else {
            // 本地开发逻辑
