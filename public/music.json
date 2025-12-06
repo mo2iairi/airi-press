@@ -8,15 +8,15 @@
         "id": "pl-pjsk-1",
         "name": "Leo/need",
         "type": "local",
-        "cover": "Leo need/image.png",
+        "cover": "music/Leo need/image.png",
         "songs": [
           { 
             "id": "s1", 
             "title": "携帯恋話", 
             "artist": "25時、ナイトコードで。", 
-            "url": "25時/携帯恋話/携帯恋話-full-東雲 絵名+暁山 瑞希+初音 ミク.mp3", 
+            "url": "music/25時/携帯恋話/携帯恋話-full-東雲 絵名+暁山 瑞希+初音 ミク.mp3", 
             "duration": "6:12",
-            "cover": "25時/携帯恋話/携帯恋話.png"
+            "cover": "music/25時/携帯恋話/携帯恋話.png"
           }
         ]
       },
@@ -24,15 +24,15 @@
         "id": "pl-pjsk-5",
         "name": "25時、ナイトコードで。",
         "type": "local",
-        "cover": "25時/image.png",
+        "cover": "music/25時/image.png",
         "songs": [
           { 
             "id": "s3", 
             "title": "Peaky Peaky", 
             "artist": "Leo/need", 
-            "url": "Leo need/Peaky Peaky/Peaky Peaky-full-日野森 志歩+星乃 一歌+KAITO+天馬 咲希+望月 穂波.mp3", 
+            "url": "music/Leo need/Peaky Peaky/Peaky Peaky-full-日野森 志歩+星乃 一歌+KAITO+天馬 咲希+望月 穂波.mp3", 
             "duration": "5:44",
-            "cover": "Leo need/Peaky Peaky/Peaky Peaky.png"
+            "cover": "music/Leo need/Peaky Peaky/Peaky Peaky.png"
           }
         ]
       }
