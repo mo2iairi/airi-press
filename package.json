@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "pnpm gen:wallpapers && cross-env VITE_LOCAL_MODE=true vite",
     "build": "pnpm gen:wallpapers && cross-env VITE_LOCAL_MODE=false vue-tsc -b && vite build",
-    "build:gh": "pnpm gen:wallpapers && cross-env VITE_DEPLOY_TARGET=github VITE_ASMR_API_URL=https://api.asmr-200.com vue-tsc -b && vite build --base=/airi-press/ && node -e \"require('fs').copyFileSync('dist/index.html', 'dist/404.html')\"",
+    "build:gh": "pnpm gen:wallpapers && cross-env VITE_DEPLOY_TARGET=github vue-tsc -b && vite build --base=/airi-press/ && node scripts/copy-404.js",
     "preview": "vite preview",
     "gen:posts": "tsx scripts/generate-posts.ts",
     "gen:wallpapers": "tsx scripts/generate-wallpapers.ts"

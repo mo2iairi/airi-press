@@ -55,9 +55,14 @@ const localPostManager = () => {
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: process.env.VITE_DEPLOY_TARGET === 'github' 
-    ? process.env.BASE_URL || '/airi-press/' // Fallback or set via env
-    : '/',
+  base: (() => {
+    const calculatedBase = process.env.VITE_DEPLOY_TARGET === 'github' 
+      ? process.env.BASE_URL || '/airi-press/'
+      : '/';
+    console.log('Vite base calculated:', calculatedBase);
+    console.log('VITE_DEPLOY_TARGET:', process.env.VITE_DEPLOY_TARGET);
+    return calculatedBase;
+  })(),
   plugins: [
     vue(),
     localPostManager()

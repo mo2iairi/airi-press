@@ -40,9 +40,12 @@ export interface Asmr200Item {
 export type MusicItem = Folder | FlatPlaylist | Asmr200Item;
 
 export const useMusicStore = defineStore('music', () => {
-  const ASMR_API_BASE = import.meta.env.VITE_ASMR_API_URL || (import.meta.env.VITE_DEPLOY_TARGET === 'github'
-    ? 'https://api.asmr-200.com'
-    : '/api-asmr200');
+  const ASMR_API_BASE = (() => {
+    if (import.meta.env.VITE_DEPLOY_TARGET === 'github') {
+      return 'https://api.asmr-200.com';
+    }
+    return '/api-asmr200';
+  })();
   const systemStore = useSystemStore();
   const musicCollection = ref<MusicItem[]>([]);
   const currentPlaylistId = ref<string | null>(null);
