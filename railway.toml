@@ -1,12 +1,16 @@
 [build]
-builder = "nixpacks"
-buildCommand = "cargo build --release"
+# Use Dockerfile build strategy
+builder = "dockerfile"
+dockerfilePath = "server/Dockerfile"
 
 [deploy]
-startCommand = "./target/release/airi-press-server"
+# Docker container will run the CMD defined in Dockerfile
+# So we don't need startCommand if Dockerfile has CMD/ENTRYPOINT
 healthcheckPath = "/api/v1/health"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"
 
 [service]
-rootDirectory = "server"
+# Since we point to Dockerfile explicitly, rootDirectory can remain root
+# but setting it to server might be cleaner if context is server
+rootDirectory = "."
