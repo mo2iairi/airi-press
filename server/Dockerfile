@@ -1,7 +1,9 @@
 FROM rust:latest AS builder
 
 WORKDIR /app
-COPY . .
+# Assume build context is the repository root
+# Copy only the server directory contents to /app
+COPY server/ .
 RUN cargo build --release
 
 FROM debian:bookworm-slim
