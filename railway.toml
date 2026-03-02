@@ -1,7 +1,7 @@
 [build]
 # Use Dockerfile build strategy
 builder = "dockerfile"
-# When rootDirectory is set to "server", the path is relative to it
+# Use the Dockerfile located in server/ directory
 dockerfilePath = "server/Dockerfile"
 
 [deploy]
@@ -12,5 +12,5 @@ healthcheckTimeout = 100
 restartPolicyType = "on_failure"
 
 [service]
-# Set the root context to the server directory
-rootDirectory = "server"
+# Use the repository root as the build context
+rootDirectory = "."
