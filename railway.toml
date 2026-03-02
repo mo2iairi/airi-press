@@ -1,7 +1,8 @@
 [build]
 # Use Dockerfile build strategy
 builder = "dockerfile"
-dockerfilePath = "server/Dockerfile"
+# When rootDirectory is set to "server", the path is relative to it
+dockerfilePath = "Dockerfile"
 
 [deploy]
 # Docker container will run the CMD defined in Dockerfile
@@ -11,6 +12,5 @@ healthcheckTimeout = 100
 restartPolicyType = "on_failure"
 
 [service]
-# Since we point to Dockerfile explicitly, rootDirectory can remain root
-# but setting it to server might be cleaner if context is server
-rootDirectory = "."
+# Set the root context to the server directory
+rootDirectory = "server"
