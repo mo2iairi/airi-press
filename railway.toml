@@ -2,7 +2,7 @@
 # Use Dockerfile build strategy
 builder = "dockerfile"
 # When rootDirectory is set to "server", the path is relative to it
-dockerfilePath = "Dockerfile"
+dockerfilePath = "server/Dockerfile"
 
 [deploy]
 # Docker container will run the CMD defined in Dockerfile
