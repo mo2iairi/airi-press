@@ -6,14 +6,11 @@ RUN apk add --no-cache musl-dev openssl-dev openssl-libs-static pkgconfig
 WORKDIR /app
 
 # Copy the server code
-COPY server/ ./
+COPY server/Cargo.toml ./
+COPY server/src ./src
+COPY server/migrations ./migrations
 
-# Downgrade incompatible dependencies to versions supporting rustc 1.85
-RUN cargo update home@0.5.12 --precise 0.5.9 && \
-    cargo update time@0.3.47 --precise 0.3.36 && \
-    cargo update time-core@0.1.8 --precise 0.1.2 && \
-    cargo update time-macros@0.2.27 --precise 0.2.18
-
+# Remove any existing Cargo.lock and let cargo generate a fresh one
 # Build the application
 RUN cargo build --release
 
