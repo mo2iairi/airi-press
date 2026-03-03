@@ -1,16 +1,9 @@
 [build]
-# Use Dockerfile build strategy
 builder = "dockerfile"
-# Use the Dockerfile located in server/ directory
-dockerfilePath = "server/Dockerfile"
+dockerfilePath = "./Dockerfile"
 
 [deploy]
-# Docker container will run the CMD defined in Dockerfile
-# So we don't need startCommand if Dockerfile has CMD/ENTRYPOINT
 healthcheckPath = "/api/v1/health"
-healthcheckTimeout = 100
+healthcheckTimeout = 300
 restartPolicyType = "on_failure"
-
-[service]
-# Use the repository root as the build context
-rootDirectory = "."
+restartPolicyMaxRetries = 10

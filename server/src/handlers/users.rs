@@ -1,55 +1,113 @@
-use std::sync::Arc;
-
 use axum::{
     extract::{Path, State},
     Json,
 };
 use uuid::Uuid;
+use validator::Validate;
 
-use crate::errors::AppError;
-use crate::models::*;
-use crate::AppState;
+use crate::error::{AppError, AppResult};
+use crate::models::auth::AuthUser;
+use crate::models::user::{CreateUserRequest, Permission, UpdateUserRequest, UserResponse};
+use crate::models::AppState;
+use crate::services::user;
 
-pub async fn list_users(
-    State(state): State<Arc<AppState>>,
-) -> Result<Json<ApiResponse<Vec<UserResponse>>>, AppError> {
-    let users = sqlx::query_as::<_, User>("SELECT * FROM users ORDER BY created_at DESC")
-        .fetch_all(&state.db)
-        .await?;
-
-    let user_responses: Vec<UserResponse> = users.into_iter().map(|u| u.into()).collect();
-    Ok(Json(ApiResponse::success(user_responses)))
+pub async fn get_current_user(
+    auth_user: AuthUser,
+    State(state): State<AppState>,
+) -> AppResult<Json<UserResponse>> {
+    let user = user::get_user_by_id(&state.pool, auth_user.id).await?;
+    Ok(Json(UserResponse::from(user)))
 }
 
-pub async fn update_permission(
-    State(state): State<Arc<AppState>>,
-    Path(id): Path<Uuid>,
-    Json(payload): Json<UpdatePermissionRequest>,
-) -> Result<Json<ApiResponse<UserResponse>>, AppError> {
-    let user = sqlx::query_as::<_, User>(
-        "UPDATE users SET permission = $1, updated_at = NOW() WHERE id = $2 RETURNING *",
-    )
-    .bind(payload.permission)
-    .bind(id)
-    .fetch_optional(&state.db)
-    .await?
-    .ok_or_else(|| AppError::NotFound("User not found".to_string()))?;
+pub async fn get_all_users(
+    auth_user: AuthUser,
+    State(state): State<AppState>,
+) -> AppResult<Json<Vec<UserResponse>>> {
+    // Only admin can view all users
+    if !Permission::from(auth_user.permission).is_admin() {
+        return Err(AppError::Forbidden);
+    }
 
-    Ok(Json(ApiResponse::success(user.into())))
+    let users = user::get_all_users(&state.pool).await?;
+    let responses: Vec<UserResponse> = users.into_iter().map(UserResponse::from).collect();
+    Ok(Json(responses))
+}
+
+pub async fn get_user(
+    auth_user: AuthUser,
+    State(state): State<AppState>,
+    Path(id): Path<Uuid>,
+) -> AppResult<Json<UserResponse>> {
+    // Only admin can view other users
+    if !Permission::from(auth_user.permission).is_admin() && auth_user.id != id {
+        return Err(AppError::Forbidden);
+    }
+
+    let user = user::get_user_by_id(&state.pool, id).await?;
+    Ok(Json(UserResponse::from(user)))
+}
+
+pub async fn create_user(
+    auth_user: AuthUser,
+    State(state): State<AppState>,
+    Json(req): Json<CreateUserRequest>,
+) -> AppResult<Json<UserResponse>> {
+    // Only admin can create users
+    if !Permission::from(auth_user.permission).is_admin() {
+        return Err(AppError::Forbidden);
+    }
+
+    req.validate().map_err(|e| AppError::ValidationError(e.to_string()))?;
+
+    let created_user = user::create_user(&state.pool, req).await?;
+    Ok(Json(UserResponse::from(created_user)))
+}
+
+pub async fn update_user(
+    auth_user: AuthUser,
+    State(state): State<AppState>,
+    Path(id): Path<Uuid>,
+    Json(req): Json<UpdateUserRequest>,
+) -> AppResult<Json<UserResponse>> {
+    // Only admin can update other users, users can update themselves (except permission)
+    let is_admin = Permission::from(auth_user.permission).is_admin();
+    
+    if !is_admin && auth_user.id != id {
+        return Err(AppError::Forbidden);
+    }
+
+    // Non-admin users cannot change their permission
+    let req = if !is_admin && req.permission.is_some() {
+        UpdateUserRequest {
+            username: req.username,
+            password: req.password,
+            permission: None,
+        }
+    } else {
+        req
+    };
+
+    req.validate().map_err(|e| AppError::ValidationError(e.to_string()))?;
+
+    let updated_user = user::update_user(&state.pool, id, req).await?;
+    Ok(Json(UserResponse::from(updated_user)))
 }
 
 pub async fn delete_user(
-    State(state): State<Arc<AppState>>,
+    auth_user: AuthUser,
+    State(state): State<AppState>,
     Path(id): Path<Uuid>,
-) -> Result<Json<ApiResponse<()>>, AppError> {
-    let result = sqlx::query("DELETE FROM users WHERE id = $1")
-        .bind(id)
-        .execute(&state.db)
-        .await?;
-
-    if result.rows_affected() == 0 {
-        return Err(AppError::NotFound("User not found".to_string()));
+) -> AppResult<Json<serde_json::Value>> {
+    // Only admin can delete users
+    if !Permission::from(auth_user.permission).is_admin() {
+        return Err(AppError::Forbidden);
     }
 
-    Ok(Json(ApiResponse::success(())))
+    // Cannot delete yourself
+    if auth_user.id == id {
+        return Err(AppError::BadRequest("Cannot delete yourself".to_string()));
+    }
+
+    user::delete_user(&state.pool, id).await?;
+    Ok(Json(serde_json::json!({"message": "User deleted successfully"})))
 }

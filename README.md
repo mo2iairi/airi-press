@@ -1,105 +1,149 @@
-# Airi Press
+# AiriPress 博客系统
 
-A modern personal blog / CMS system built with **Rust (Axum)** backend and **Vue 3** frontend, featuring a beautiful glassmorphism design.
+一个现代化、易维护的生产级博客系统，采用 Rust (Axum) 后端和 Vue 3 前端构建。
 
-## Architecture
+## 🚀 特性
 
-- **Backend**: Rust + Axum + SQLx + PostgreSQL
-- **Frontend**: Vue 3 + TypeScript + Vite + Pinia
-- **Content Storage**: GitHub API (Markdown files stored in a GitHub repository)
-- **Authentication**: JWT + bcrypt
+- **现代技术栈**: Rust/Axum 后端 + Vue 3/Vite 前端
+- **富文本编辑器**: 基于 Tiptap 的所见即所得编辑器
+- **图片存储**: 使用 GitHub Repository 作为图片存储后端
+- **权限系统**: 5级用户权限（Viewer, Commenter, Author, Editor, Admin）
+- **完整功能**: 文章、分类、标签、评论管理
+- **响应式设计**: 适配桌面和移动设备
+- **生产就绪**: Docker 支持，Railway 部署配置
 
-## Features
+## 📁 项目结构
 
-- 📝 Markdown-based article management
-- 🏷️ Tags and categories
-- 🖼️ Image storage via GitHub repository
-- 👥 User management with permission system
-- 🔐 JWT authentication
-- 🎨 Glassmorphism UI design
-- 📱 Responsive layout
-- 🌙 Dark theme
-
-## Permission System
-
-| Permission | Value | Description |
-|------------|-------|-------------|
-| Visitor    | 0     | Can only view published articles |
-| Author     | 1     | Can manage articles |
-| Admin      | 255   | Can manage users and articles |
-
-## Getting Started
-
-### Prerequisites
-
-- Rust (latest stable)
-- Node.js 18+
-- PostgreSQL 15+
-- GitHub Personal Access Token
-
-### Backend Setup
-
-```bash
-cd server
-cp .env.example .env
-# Edit .env with your configuration
-cargo run
+```
+airipress/
+├── server/                 # Rust 后端
+│   ├── src/
+│   │   ├── handlers/       # API 处理器
+│   │   ├── models/         # 数据模型
+│   │   ├── services/       # 业务逻辑
+│   │   ├── middleware/     # 中间件
+│   │   └── main.rs         # 入口文件
+│   ├── migrations/         # 数据库迁移
+│   ├── Cargo.toml
+│   └── Dockerfile
+│
+├── web/                    # Vue 3 前端
+│   ├── src/
+│   │   ├── views/          # 页面组件
+│   │   ├── layouts/        # 布局组件
+│   │   ├── stores/         # Pinia 状态
+│   │   ├── api/            # API 服务
+│   │   └── types/          # TypeScript 类型
+│   ├── package.json
+│   └── vite.config.ts
+│
+└── .github/workflows/      # CI/CD 配置
 ```
 
-### Frontend Setup
+## 🛠 本地开发
 
-```bash
-cd web
-cp .env.example .env
-# Edit .env with your API base URL
-npm install
-npm run dev
-```
+### 后端
 
-### Docker Deployment (Backend)
+1. 安装 Rust 和 PostgreSQL
+2. 复制环境变量配置：
+   ```bash
+   cd server
+   cp .env.example .env
+   # 编辑 .env 填入数据库和 GitHub 配置
+   ```
+3. 运行数据库迁移：
+   ```bash
+   sqlx migrate run
+   ```
+4. 启动服务器：
+   ```bash
+   cargo run
+   ```
 
-```bash
-cd server
-docker build -t airi-press-server .
-docker run -p 3000:3000 --env-file .env airi-press-server
-```
+### 前端
 
-## API Endpoints
+1. 安装依赖：
+   ```bash
+   cd web
+   npm install
+   ```
+2. 启动开发服务器：
+   ```bash
+   npm run dev
+   ```
 
-### Health
-- `GET /api/v1/health`
+## 🌐 部署
 
-### Authentication
-- `POST /api/v1/auth/login`
-- `POST /api/v1/auth/register`
-- `GET /api/v1/auth/me`
+### 后端部署 (Railway)
 
-### Users (Admin only)
-- `GET /api/v1/users`
-- `PUT /api/v1/users/:id/permission`
-- `DELETE /api/v1/users/:id`
+1. 在 Railway 创建新项目
+2. 连接 GitHub 仓库
+3. 添加 PostgreSQL 数据库服务
+4. 设置环境变量：
+   - `DATABASE_URL`
+   - `JWT_SECRET`
+   - `GITHUB_TOKEN`
+   - `GITHUB_REPO`
+   - `GITHUB_OWNER`
 
-### Posts
-- `GET /api/v1/posts`
-- `GET /api/v1/posts/:id`
-- `POST /api/v1/posts` (Author+)
-- `PUT /api/v1/posts/:id` (Author+)
-- `DELETE /api/v1/posts/:id` (Author+)
+### 前端部署 (GitHub Pages)
 
-### Categories
-- `GET /api/v1/categories`
-- `GET /api/v1/categories/:id`
-- `POST /api/v1/categories` (Author+)
-- `PUT /api/v1/categories/:id` (Author+)
-- `DELETE /api/v1/categories/:id` (Author+)
+1. 在仓库设置中启用 GitHub Pages
+2. 设置 Secret `API_BASE_URL` 为后端 API 地址
+3. 推送到 main 分支自动部署
 
-### Tags
-- `GET /api/v1/tags`
-- `GET /api/v1/tags/:id`
-- `POST /api/v1/tags` (Author+)
-- `PUT /api/v1/tags/:id` (Author+)
-- `DELETE /api/v1/tags/:id` (Author+)
+## 📝 API 端点
 
-## License
+### 认证
+- `POST /api/v1/auth/login` - 登录
+- `POST /api/v1/auth/register` - 注册
+- `GET /api/v1/auth/me` - 获取当前用户
+
+### 文章
+- `GET /api/v1/posts` - 获取文章列表
+- `GET /api/v1/posts/:id` - 获取文章详情
+- `POST /api/v1/posts` - 创建文章
+- `PUT /api/v1/posts/:id` - 更新文章
+- `DELETE /api/v1/posts/:id` - 删除文章
+
+### 分类
+- `GET /api/v1/categories` - 获取分类列表
+- `POST /api/v1/categories` - 创建分类
+- `PUT /api/v1/categories/:id` - 更新分类
+- `DELETE /api/v1/categories/:id` - 删除分类
+
+### 标签
+- `GET /api/v1/tags` - 获取标签列表
+- `POST /api/v1/tags` - 创建标签
+- `PUT /api/v1/tags/:id` - 更新标签
+- `DELETE /api/v1/tags/:id` - 删除标签
+
+### 评论
+- `GET /api/v1/posts/:id/comments` - 获取文章评论
+- `POST /api/v1/comments` - 创建评论
+- `DELETE /api/v1/comments/:id` - 删除评论
+
+### 图片
+- `GET /api/v1/images` - 获取图片列表
+- `POST /api/v1/images` - 上传图片
+- `DELETE /api/v1/images/:id` - 删除图片
+
+### 用户管理 (Admin)
+- `GET /api/v1/users` - 获取用户列表
+- `POST /api/v1/users` - 创建用户
+- `PUT /api/v1/users/:id` - 更新用户
+- `DELETE /api/v1/users/:id` - 删除用户
+
+## 🔐 权限等级
+
+| 等级 | 名称 | 权限 |
+|------|------|------|
+| 0 | Viewer | 仅浏览 |
+| 1 | Commenter | 可发表评论 |
+| 2 | Author | 可写文章 |
+| 3 | Editor | 可编辑所有文章、管理分类标签 |
+| 4 | Admin | 完全管理权限 |
+
+## 📄 License
 
 MIT License
