@@ -8,7 +8,7 @@ description = "A production-ready blog system backend"
 [dependencies]
 # Web framework
 axum = { version = "0.7", features = ["macros", "multipart"] }
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1.43", features = ["full"] }
 tower = { version = "0.4", features = ["full"] }
 tower-http = { version = "0.5", features = ["cors", "trace", "fs"] }
 
@@ -19,13 +19,14 @@ sqlx = { version = "0.7", features = ["runtime-tokio", "tls-rustls", "postgres",
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
-# Authentication
-jsonwebtoken = "9"
+# Authentication - pin jsonwebtoken to avoid pulling in newer simple_asn1/time
+jsonwebtoken = "=9.2.0"
 argon2 = "0.5"
 rand = "0.8"
 
-# Date and time
-chrono = { version = "0.4", features = ["serde"] }
+# Date and time - pin to versions compatible with rustc 1.85
+chrono = { version = "=0.4.38", features = ["serde"] }
+time = "=0.3.36"
 
 # UUID
 uuid = { version = "1", features = ["v4", "serde"] }
@@ -49,3 +50,6 @@ validator = { version = "0.16", features = ["derive"] }
 # Error handling
 thiserror = "1"
 anyhow = "1"
+
+# Pin transitive dependencies to rustc 1.85 compatible versions
+home = "=0.5.9"

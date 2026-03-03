@@ -1,0 +1,33 @@
+# Ignore Cargo.lock to let Docker regenerate with compatible versions
+server/Cargo.lock
+
+# Build artifacts
+server/target/
+web/node_modules/
+web/dist/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Environment files (should be provided via env vars in production)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+!README.md
