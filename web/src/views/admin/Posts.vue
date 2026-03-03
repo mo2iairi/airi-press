@@ -49,8 +49,8 @@
               </router-link>
             </td>
             <td>
-              <span v-if="post.category" class="category-tag">
-                {{ post.category.name }}
+              <span v-if="post.categories && post.categories.length > 0" class="category-tag">
+                {{ post.categories[0].name }}
               </span>
               <span v-else class="text-muted">无分类</span>
             </td>
@@ -148,7 +148,9 @@ async function fetchPosts() {
 
     const response = await postsApi.getAll(params)
     posts.value = response.data.data
-    pagination.value = response.data.pagination
+    if (response.data.pagination) {
+      pagination.value = response.data.pagination
+    }
   } catch (error) {
     console.error('Failed to fetch posts:', error)
   } finally {

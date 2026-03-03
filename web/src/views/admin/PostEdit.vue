@@ -147,7 +147,7 @@
         <div class="sidebar-card">
           <h3 class="card-title">分类</h3>
           <select v-model="form.category_id" class="form-select">
-            <option value="">无分类</option>
+            <option :value="null">无分类</option>
             <option v-for="cat in categories" :key="cat.id" :value="cat.id">
               {{ cat.name }}
             </option>
@@ -206,8 +206,8 @@ const form = reactive({
   title: '',
   content: '',
   summary: '',
-  category_id: '',
-  tag_ids: [] as string[],
+  category_id: null as number | null,
+  tag_ids: [] as number[],
   published: false
 })
 
@@ -236,20 +236,20 @@ const availableTags = computed(() => {
   return tags.value.filter(tag => !form.tag_ids.includes(tag.id))
 })
 
-function getTagName(tagId: string) {
+function getTagName(tagId: number) {
   return tags.value.find(t => t.id === tagId)?.name || ''
 }
 
 function addTag(event: Event) {
   const select = event.target as HTMLSelectElement
-  const tagId = select.value
+  const tagId = Number(select.value)
   if (tagId && !form.tag_ids.includes(tagId)) {
     form.tag_ids.push(tagId)
   }
   select.value = ''
 }
 
-function removeTag(tagId: string) {
+function removeTag(tagId: number) {
   form.tag_ids = form.tag_ids.filter(id => id !== tagId)
 }
 
@@ -295,7 +295,7 @@ async function fetchPost() {
     form.title = post.title
     form.content = post.content
     form.summary = post.summary || ''
-    form.category_id = post.category?.id || ''
+    form.category_id = post.categories?.[0]?.id || null
     form.tag_ids = post.tags.map(t => t.id)
     form.published = post.published
     editor.value?.commands.setContent(post.content)
@@ -332,7 +332,7 @@ async function handleSubmit() {
       title: form.title,
       content: form.content,
       summary: form.summary || undefined,
-      category_id: form.category_id || undefined,
+      category_ids: form.category_id ? [form.category_id] : undefined,
       tag_ids: form.tag_ids.length > 0 ? form.tag_ids : undefined,
       published: form.published
     }
