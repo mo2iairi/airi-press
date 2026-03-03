@@ -6,60 +6,70 @@ export interface User {
   updated_at: string
 }
 
-export interface AuthResponse {
-  token: string
-  user: User
-}
-
 export interface Post {
-  id: string
+  id: number
   title: string
-  summary: string
-  author_id: string
-  author_name: string
-  category: Category | null
-  tags: Tag[]
+  summary: string | null
+  content: string
+  author: User
   published: boolean
-  content?: string
+  categories: Category[]
+  tags: Tag[]
   created_at: string
   updated_at: string
 }
 
-export interface CreatePostRequest {
+export interface PostListItem {
+  id: number
   title: string
-  summary: string
-  content: string
-  category_id?: string
-  tag_ids?: string[]
-  published?: boolean
-}
-
-export interface UpdatePostRequest {
-  title?: string
-  summary?: string
-  content?: string
-  category_id?: string
-  tag_ids?: string[]
-  published?: boolean
+  summary: string | null
+  author: User
+  published: boolean
+  categories: Category[]
+  tags: Tag[]
+  created_at: string
+  updated_at: string
 }
 
 export interface Category {
-  id: string
+  id: number
   name: string
-  description: string
-  created_at: string
+  parent_id: number | null
+}
+
+export interface CategoryWithChildren extends Category {
+  children: CategoryWithChildren[]
 }
 
 export interface Tag {
-  id: string
+  id: number
   name: string
+}
+
+export interface Comment {
+  id: number
+  post_id: number
+  author: User
+  content: string
   created_at: string
 }
 
-export interface ApiResponse<T> {
-  success: boolean
-  data: T | null
-  message: string | null
+export interface Image {
+  id: number
+  relative_path: string
+  url: string
+  original_name: string | null
+  mime_type: string | null
+  size: number | null
+  created_at: string
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  total: number
+  page: number
+  per_page: number
+  total_pages: number
 }
 
 export interface LoginRequest {
@@ -67,7 +77,84 @@ export interface LoginRequest {
   password: string
 }
 
-export interface RegisterRequest {
+export interface LoginResponse {
+  token: string
+  user: User
+}
+
+export interface CreatePostRequest {
+  title: string
+  summary?: string
+  content: string
+  published?: boolean
+  category_ids?: number[]
+  tag_ids?: number[]
+}
+
+export interface UpdatePostRequest {
+  title?: string
+  summary?: string
+  content?: string
+  published?: boolean
+  category_ids?: number[]
+  tag_ids?: number[]
+}
+
+export interface CreateUserRequest {
   username: string
   password: string
+  permission?: number
+}
+
+export interface UpdateUserRequest {
+  username?: string
+  password?: string
+  permission?: number
+}
+
+export interface CreateCategoryRequest {
+  name: string
+  parent_id?: number
+}
+
+export interface CreateTagRequest {
+  name: string
+}
+
+export interface PostQuery {
+  page?: number
+  per_page?: number
+  published?: boolean
+  author_id?: string
+  category_id?: number
+  tag_id?: number
+  search?: string
+}
+
+// Permission levels
+export const Permission = {
+  VIEWER: 0,
+  COMMENTER: 1,
+  AUTHOR: 2,
+  EDITOR: 3,
+  ADMIN: 4,
+} as const
+
+export type PermissionLevel = typeof Permission[keyof typeof Permission]
+
+export const getPermissionLabel = (permission: number): string => {
+  switch (permission) {
+    case Permission.VIEWER:
+      return '访客'
+    case Permission.COMMENTER:
+      return '评论者'
+    case Permission.AUTHOR:
+      return '作者'
+    case Permission.EDITOR:
+      return '编辑'
+    case Permission.ADMIN:
+      return '管理员'
+    default:
+      return '未知'
+  }
 }

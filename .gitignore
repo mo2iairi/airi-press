@@ -18,6 +18,11 @@ web/dist/
 *.swo
 *~
 
+# Agent
+.claude
+.codemaker
+.playwright
+
 # OS
 .DS_Store
 Thumbs.db

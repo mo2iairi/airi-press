@@ -1,94 +1,134 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import MainLayout from '@/layouts/MainLayout.vue'
+import AdminLayout from '@/layouts/AdminLayout.vue'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: () => import('@/views/HomeView.vue'),
-    },
-    {
-      path: '/posts/:id',
-      name: 'post-detail',
-      component: () => import('@/views/PostDetailView.vue'),
+      component: MainLayout,
+      children: [
+        {
+          path: '',
+          name: 'home',
+          component: () => import('@/views/Home.vue')
+        },
+        {
+          path: 'posts',
+          name: 'posts',
+          component: () => import('@/views/Posts.vue')
+        },
+        {
+          path: 'posts/:id',
+          name: 'post-detail',
+          component: () => import('@/views/PostDetail.vue')
+        }
+      ]
     },
     {
       path: '/login',
       name: 'login',
-      component: () => import('@/views/LoginView.vue'),
-    },
-    {
-      path: '/register',
-      name: 'register',
-      component: () => import('@/views/RegisterView.vue'),
+      component: () => import('@/views/Login.vue')
     },
     {
       path: '/admin',
-      name: 'admin',
-      component: () => import('@/views/AdminView.vue'),
-      meta: { requiresAuth: true, requiresAuthor: true },
+      component: AdminLayout,
+      meta: { requiresAuth: true },
       children: [
         {
           path: '',
           name: 'admin-dashboard',
-          component: () => import('@/views/admin/DashboardView.vue'),
+          component: () => import('@/views/admin/Dashboard.vue')
         },
         {
           path: 'posts',
           name: 'admin-posts',
-          component: () => import('@/views/admin/PostsManageView.vue'),
+          component: () => import('@/views/admin/Posts.vue'),
+          meta: { minPermission: 2 }
         },
         {
           path: 'posts/new',
           name: 'admin-post-new',
-          component: () => import('@/views/admin/PostEditorView.vue'),
+          component: () => import('@/views/admin/PostEdit.vue'),
+          meta: { minPermission: 2 }
         },
         {
           path: 'posts/:id/edit',
           name: 'admin-post-edit',
-          component: () => import('@/views/admin/PostEditorView.vue'),
+          component: () => import('@/views/admin/PostEdit.vue'),
+          meta: { minPermission: 2 }
         },
         {
           path: 'categories',
           name: 'admin-categories',
-          component: () => import('@/views/admin/CategoriesView.vue'),
+          component: () => import('@/views/admin/Categories.vue'),
+          meta: { minPermission: 3 }
         },
         {
           path: 'tags',
           name: 'admin-tags',
-          component: () => import('@/views/admin/TagsView.vue'),
+          component: () => import('@/views/admin/Tags.vue'),
+          meta: { minPermission: 3 }
+        },
+        {
+          path: 'images',
+          name: 'admin-images',
+          component: () => import('@/views/admin/Images.vue'),
+          meta: { minPermission: 2 }
         },
         {
           path: 'users',
           name: 'admin-users',
-          component: () => import('@/views/admin/UsersView.vue'),
-          meta: { requiresAdmin: true },
-        },
-      ],
+          component: () => import('@/views/admin/Users.vue'),
+          meta: { minPermission: 4 }
+        }
+      ]
     },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      redirect: '/'
+    }
   ],
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  }
 })
 
-router.beforeEach(async (to) => {
-  const auth = useAuthStore()
+// Navigation guard
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore()
 
-  if (auth.token && !auth.user) {
-    await auth.fetchMe()
+  // Initialize auth state if not done
+  if (!authStore.initialized) {
+    await authStore.init()
   }
 
-  if (to.meta.requiresAuth && !auth.isLoggedIn) {
-    return { name: 'login', query: { redirect: to.fullPath } }
+  // Check if route requires auth
+  if (to.meta.requiresAuth) {
+    if (!authStore.isAuthenticated) {
+      return next({ name: 'login', query: { redirect: to.fullPath } })
+    }
+
+    // Check permission level
+    const minPermission = (to.meta.minPermission as number) || 0
+    if (authStore.user && authStore.user.permission < minPermission) {
+      return next({ name: 'admin-dashboard' })
+    }
   }
 
-  if (to.meta.requiresAuthor && !auth.isAuthor) {
-    return { name: 'home' }
+  // Redirect to admin if already logged in and going to login
+  if (to.name === 'login' && authStore.isAuthenticated) {
+    return next({ name: 'admin-dashboard' })
   }
 
-  if (to.meta.requiresAdmin && !auth.isAdmin) {
-    return { name: 'admin-dashboard' }
-  }
+  next()
 })
 
 export default router

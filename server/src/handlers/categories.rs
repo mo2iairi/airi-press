@@ -1,101 +1,78 @@
-use std::sync::Arc;
-
 use axum::{
     extract::{Path, State},
     Json,
 };
-use uuid::Uuid;
+use validator::Validate;
 
-use crate::errors::AppError;
-use crate::models::*;
-use crate::AppState;
+use crate::error::{AppError, AppResult};
+use crate::models::auth::AuthUser;
+use crate::models::category::{Category, CategoryWithChildren, CreateCategoryRequest, UpdateCategoryRequest};
+use crate::models::user::Permission;
+use crate::models::AppState;
+use crate::services::category;
 
-pub async fn list_categories(
-    State(state): State<Arc<AppState>>,
-) -> Result<Json<ApiResponse<Vec<Category>>>, AppError> {
-    let categories = sqlx::query_as::<_, Category>(
-        "SELECT * FROM categories ORDER BY name ASC",
-    )
-    .fetch_all(&state.db)
-    .await?;
+pub async fn get_all_categories(
+    State(state): State<AppState>,
+) -> AppResult<Json<Vec<Category>>> {
+    let categories = category::get_all_categories(&state.pool).await?;
+    Ok(Json(categories))
+}
 
-    Ok(Json(ApiResponse::success(categories)))
+pub async fn get_categories_tree(
+    State(state): State<AppState>,
+) -> AppResult<Json<Vec<CategoryWithChildren>>> {
+    let tree = category::get_categories_tree(&state.pool).await?;
+    Ok(Json(tree))
 }
 
 pub async fn get_category(
-    State(state): State<Arc<AppState>>,
-    Path(id): Path<Uuid>,
-) -> Result<Json<ApiResponse<Category>>, AppError> {
-    let category = sqlx::query_as::<_, Category>("SELECT * FROM categories WHERE id = $1")
-        .bind(id)
-        .fetch_optional(&state.db)
-        .await?
-        .ok_or_else(|| AppError::NotFound("Category not found".to_string()))?;
-
-    Ok(Json(ApiResponse::success(category)))
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> AppResult<Json<Category>> {
+    let cat = category::get_category_by_id(&state.pool, id).await?;
+    Ok(Json(cat))
 }
 
 pub async fn create_category(
-    State(state): State<Arc<AppState>>,
-    Json(payload): Json<CreateCategoryRequest>,
-) -> Result<Json<ApiResponse<Category>>, AppError> {
-    let description = payload.description.unwrap_or_default();
+    auth_user: AuthUser,
+    State(state): State<AppState>,
+    Json(req): Json<CreateCategoryRequest>,
+) -> AppResult<Json<Category>> {
+    if !Permission::from(auth_user.permission).is_admin() {
+        return Err(AppError::Forbidden);
+    }
 
-    let category = sqlx::query_as::<_, Category>(
-        "INSERT INTO categories (name, description) VALUES ($1, $2) RETURNING *",
-    )
-    .bind(&payload.name)
-    .bind(&description)
-    .fetch_one(&state.db)
-    .await
-    .map_err(|e| match e {
-        sqlx::Error::Database(ref db_err) if db_err.constraint().is_some() => {
-            AppError::BadRequest("Category name already exists".to_string())
-        }
-        _ => AppError::Database(e),
-    })?;
+    req.validate().map_err(|e| AppError::ValidationError(e.to_string()))?;
 
-    Ok(Json(ApiResponse::success(category)))
+    let cat = category::create_category(&state.pool, req).await?;
+    Ok(Json(cat))
 }
 
 pub async fn update_category(
-    State(state): State<Arc<AppState>>,
-    Path(id): Path<Uuid>,
-    Json(payload): Json<UpdateCategoryRequest>,
-) -> Result<Json<ApiResponse<Category>>, AppError> {
-    let existing = sqlx::query_as::<_, Category>("SELECT * FROM categories WHERE id = $1")
-        .bind(id)
-        .fetch_optional(&state.db)
-        .await?
-        .ok_or_else(|| AppError::NotFound("Category not found".to_string()))?;
+    auth_user: AuthUser,
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+    Json(req): Json<UpdateCategoryRequest>,
+) -> AppResult<Json<Category>> {
+    if !Permission::from(auth_user.permission).is_admin() {
+        return Err(AppError::Forbidden);
+    }
 
-    let name = payload.name.unwrap_or(existing.name);
-    let description = payload.description.unwrap_or(existing.description);
+    req.validate().map_err(|e| AppError::ValidationError(e.to_string()))?;
 
-    let category = sqlx::query_as::<_, Category>(
-        "UPDATE categories SET name = $1, description = $2 WHERE id = $3 RETURNING *",
-    )
-    .bind(&name)
-    .bind(&description)
-    .bind(id)
-    .fetch_one(&state.db)
-    .await?;
-
-    Ok(Json(ApiResponse::success(category)))
+    let cat = category::update_category(&state.pool, id, req).await?;
+    Ok(Json(cat))
 }
 
 pub async fn delete_category(
-    State(state): State<Arc<AppState>>,
-    Path(id): Path<Uuid>,
-) -> Result<Json<ApiResponse<()>>, AppError> {
-    let result = sqlx::query("DELETE FROM categories WHERE id = $1")
-        .bind(id)
-        .execute(&state.db)
-        .await?;
-
-    if result.rows_affected() == 0 {
-        return Err(AppError::NotFound("Category not found".to_string()));
+    auth_user: AuthUser,
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> AppResult<Json<serde_json::Value>> {
+    if !Permission::from(auth_user.permission).is_admin() {
+        return Err(AppError::Forbidden);
     }
 
-    Ok(Json(ApiResponse::success(())))
+    category::delete_category(&state.pool, id).await?;
+    Ok(Json(serde_json::json!({"message": "Category deleted successfully"})))
 }
