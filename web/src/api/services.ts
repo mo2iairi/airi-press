@@ -38,10 +38,10 @@ export const usersApi = {
 // Posts
 export const postsApi = {
   getAll: (params?: PostQuery) => api.get<PaginatedResponse<PostListItem>>('/posts', { params }),
-  getById: (id: number) => api.get<Post>(`/posts/${id}`),
+  getById: (id: number | string) => api.get<Post>(`/posts/${id}`),
   create: (data: CreatePostRequest) => api.post<Post>('/posts', data),
-  update: (id: number, data: UpdatePostRequest) => api.put<Post>(`/posts/${id}`, data),
-  delete: (id: number) => api.delete(`/posts/${id}`),
+  update: (id: number | string, data: UpdatePostRequest) => api.put<Post>(`/posts/${id}`, data),
+  delete: (id: number | string) => api.delete(`/posts/${id}`),
 }
 
 // Categories
@@ -74,11 +74,12 @@ export const commentsApi = {
 
 // Images
 export const imagesApi = {
-  getAll: () => api.get<Image[]>('/images'),
+  getAll: (params?: { page?: number; per_page?: number }) => api.get<PaginatedResponse<Image>>('/images', { params }),
   getById: (id: number) => api.get<Image>(`/images/${id}`),
-  upload: (file: File) => {
-    const formData = new FormData()
-    formData.append('file', file)
+  upload: (fileOrFormData: File | FormData) => {
+    const formData = fileOrFormData instanceof FormData 
+      ? fileOrFormData 
+      : (() => { const fd = new FormData(); fd.append('file', fileOrFormData); return fd; })()
     return api.post<{ id: number; url: string; relative_path: string }>('/images', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

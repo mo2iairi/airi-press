@@ -31,11 +31,11 @@
     <div v-else class="images-grid">
       <div v-for="image in images" :key="image.id" class="image-item">
         <div class="image-preview">
-          <img :src="image.url" :alt="image.alt || image.filename" loading="lazy" />
+          <img :src="image.url" :alt="image.alt || image.original_name || '图片'" loading="lazy" />
         </div>
         <div class="image-info">
-          <span class="image-name" :title="image.filename">{{ image.filename }}</span>
-          <span class="image-size">{{ formatSize(image.size) }}</span>
+          <span class="image-name" :title="image.original_name || '未命名'">{{ image.original_name || '未命名' }}</span>
+          <span class="image-size">{{ formatSize(image.size || 0) }}</span>
         </div>
         <div class="image-actions">
           <button @click="copyUrl(image.url)" class="action-btn copy" title="复制链接">
@@ -75,7 +75,7 @@
         <h3>确认删除</h3>
         <p>确定要删除这张图片吗？此操作不可撤销。</p>
         <div class="image-preview-modal" v-if="imageToDelete">
-          <img :src="imageToDelete.url" :alt="imageToDelete.filename" />
+          <img :src="imageToDelete.url" :alt="imageToDelete.original_name || '图片'" />
         </div>
         <div class="modal-actions">
           <button @click="showDeleteModal = false" class="btn btn-secondary">取消</button>
@@ -169,7 +169,20 @@ async function handleUpload(event: Event) {
       formData.append('file', files[i])
 
       const response = await imagesApi.upload(formData)
-      images.value.unshift(response.data)
+      // 上传返回的是简化对象，需要重新获取完整图片列表
+      // 或者构造一个临时的 Image 对象
+      const uploadedImage: Image = {
+        id: response.data.id,
+        url: response.data.url,
+        relative_path: response.data.relative_path,
+        original_name: files[i].name,
+        alt: undefined,
+        filename: files[i].name,
+        mime_type: files[i].type,
+        size: files[i].size,
+        created_at: new Date().toISOString()
+      }
+      images.value.unshift(uploadedImage)
       uploadProgress.value = Math.round(((i + 1) / files.length) * 100)
     }
 

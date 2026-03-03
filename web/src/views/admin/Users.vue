@@ -16,7 +16,6 @@
         <thead>
           <tr>
             <th>用户名</th>
-            <th>邮箱</th>
             <th>权限等级</th>
             <th>创建时间</th>
             <th>操作</th>
@@ -25,7 +24,6 @@
         <tbody>
           <tr v-for="user in users" :key="user.id">
             <td class="username-cell">{{ user.username }}</td>
-            <td>{{ user.email }}</td>
             <td>
               <span :class="['permission-badge', getPermissionClass(user.permission)]">
                 {{ getPermissionLabel(user.permission) }}
@@ -61,16 +59,6 @@
               placeholder="用户名"
               required
               :disabled="isEditing"
-            />
-          </div>
-          <div class="form-group">
-            <label class="form-label">邮箱 *</label>
-            <input
-              v-model="form.email"
-              type="email"
-              class="form-input"
-              placeholder="邮箱地址"
-              required
             />
           </div>
           <div class="form-group" v-if="!isEditing">
@@ -138,7 +126,6 @@ const isEditing = ref(false)
 const editingId = ref<string | null>(null)
 const form = reactive({
   username: '',
-  email: '',
   password: '',
   permission: 1
 })
@@ -187,7 +174,6 @@ function openCreateModal() {
   isEditing.value = false
   editingId.value = null
   form.username = ''
-  form.email = ''
   form.password = ''
   form.permission = 1
   showModal.value = true
@@ -197,7 +183,6 @@ function openEditModal(user: User) {
   isEditing.value = true
   editingId.value = user.id
   form.username = user.username
-  form.email = user.email
   form.password = ''
   form.permission = user.permission
   showModal.value = true
@@ -208,14 +193,13 @@ function closeModal() {
 }
 
 async function handleSubmit() {
-  if (!form.username.trim() || !form.email.trim()) return
+  if (!form.username.trim()) return
   if (!isEditing.value && !form.password) return
 
   saving.value = true
   try {
     if (isEditing.value && editingId.value) {
       const payload: Record<string, any> = {
-        email: form.email,
         permission: form.permission
       }
       const response = await usersApi.update(editingId.value, payload)
@@ -226,7 +210,6 @@ async function handleSubmit() {
     } else {
       const response = await usersApi.create({
         username: form.username,
-        email: form.email,
         password: form.password,
         permission: form.permission
       })

@@ -45,8 +45,8 @@
         <article v-for="post in posts" :key="post.id" class="post-item">
           <router-link :to="`/posts/${post.id}`" class="post-link">
             <div class="post-content">
-              <div class="post-category" v-if="post.category">
-                {{ post.category.name }}
+              <div class="post-category" v-if="post.categories && post.categories.length > 0">
+                {{ post.categories[0].name }}
               </div>
               <h2 class="post-title">{{ post.title }}</h2>
               <p class="post-summary">{{ post.summary || '暂无摘要' }}</p>
@@ -133,7 +133,9 @@ async function fetchPosts() {
 
     const response = await postsApi.getAll(params)
     posts.value = response.data.data
-    pagination.value = response.data.pagination
+    if (response.data.pagination) {
+      pagination.value = response.data.pagination
+    }
   } catch (error) {
     console.error('Failed to fetch posts:', error)
   } finally {

@@ -97,7 +97,7 @@ const deleting = ref(false)
 
 const showModal = ref(false)
 const isEditing = ref(false)
-const editingId = ref<string | null>(null)
+const editingId = ref<number | null>(null)
 const form = reactive({
   name: '',
   slug: '',
@@ -131,7 +131,7 @@ function openEditModal(category: Category) {
   isEditing.value = true
   editingId.value = category.id
   form.name = category.name
-  form.slug = category.slug
+  form.slug = category.slug || ''
   form.description = category.description || ''
   showModal.value = true
 }

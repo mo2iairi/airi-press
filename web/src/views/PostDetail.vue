@@ -70,7 +70,7 @@
           <div v-else class="comments-list">
             <div v-for="comment in comments" :key="comment.id" class="comment-item">
               <div class="comment-header">
-                <span class="comment-author">{{ comment.user.username }}</span>
+                <span class="comment-author">{{ comment.author.username }}</span>
                 <span class="comment-date">{{ formatDate(comment.created_at) }}</span>
               </div>
               <p class="comment-content">{{ comment.content }}</p>
@@ -94,13 +94,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { postsApi, commentsApi } from '@/api/services'
-import type { PostDetail, Comment } from '@/types'
+import type { Post, Comment } from '@/types'
 import dayjs from 'dayjs'
 
 const route = useRoute()
 const authStore = useAuthStore()
 
-const post = ref<PostDetail | null>(null)
+const post = ref<Post | null>(null)
 const comments = ref<Comment[]>([])
 const loading = ref(true)
 const newComment = ref('')
@@ -118,7 +118,7 @@ function formatDate(date: string) {
 
 async function fetchPost() {
   try {
-    const postId = route.params.id as string
+    const postId = Number(route.params.id)
     const response = await postsApi.getById(postId)
     post.value = response.data
   } catch (error) {
@@ -129,7 +129,7 @@ async function fetchPost() {
 
 async function fetchComments() {
   try {
-    const postId = route.params.id as string
+    const postId = Number(route.params.id)
     const response = await commentsApi.getByPost(postId)
     comments.value = response.data
   } catch (error) {
@@ -142,11 +142,8 @@ async function submitComment() {
 
   submitting.value = true
   try {
-    const postId = route.params.id as string
-    const response = await commentsApi.create({
-      post_id: postId,
-      content: newComment.value.trim()
-    })
+    const postId = Number(route.params.id)
+    const response = await commentsApi.create(postId, newComment.value.trim())
     comments.value.unshift(response.data)
     newComment.value = ''
   } catch (error) {

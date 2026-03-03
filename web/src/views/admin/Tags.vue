@@ -85,7 +85,7 @@ const deleting = ref(false)
 
 const showModal = ref(false)
 const isEditing = ref(false)
-const editingId = ref<string | null>(null)
+const editingId = ref<number | null>(null)
 const form = reactive({
   name: '',
   slug: ''
@@ -117,7 +117,7 @@ function openEditModal(tag: Tag) {
   isEditing.value = true
   editingId.value = tag.id
   form.name = tag.name
-  form.slug = tag.slug
+  form.slug = tag.slug || ''
   showModal.value = true
 }
 

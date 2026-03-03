@@ -13,6 +13,7 @@ export interface Post {
   content: string
   author: User
   published: boolean
+  category?: Category | null
   categories: Category[]
   tags: Tag[]
   created_at: string
@@ -25,15 +26,22 @@ export interface PostListItem {
   summary: string | null
   author: User
   published: boolean
+  category?: Category | null
   categories: Category[]
   tags: Tag[]
   created_at: string
   updated_at: string
 }
 
+export interface PostDetail extends Post {
+  comment_count?: number
+}
+
 export interface Category {
   id: number
   name: string
+  slug?: string
+  description?: string
   parent_id: number | null
 }
 
@@ -44,11 +52,13 @@ export interface CategoryWithChildren extends Category {
 export interface Tag {
   id: number
   name: string
+  slug?: string
 }
 
 export interface Comment {
   id: number
   post_id: number
+  user?: User
   author: User
   content: string
   created_at: string
@@ -58,18 +68,24 @@ export interface Image {
   id: number
   relative_path: string
   url: string
+  filename?: string
   original_name: string | null
+  alt?: string
   mime_type: string | null
   size: number | null
   created_at: string
 }
 
-export interface PaginatedResponse<T> {
-  data: T[]
-  total: number
+export interface Pagination {
   page: number
   per_page: number
+  total: number
   total_pages: number
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  pagination: Pagination
 }
 
 export interface LoginRequest {
